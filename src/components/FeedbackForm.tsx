@@ -35,7 +35,11 @@ const feedbackSchema = z.object({
 
 type FeedbackFormValues = z.infer<typeof feedbackSchema>;
 
-const FeedbackForm = () => {
+interface FeedbackFormProps {
+  currentUser: TeamMember;
+}
+
+const FeedbackForm = ({ currentUser }: FeedbackFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [moderationMessage, setModerationMessage] = useState<string | null>(null);
   const [teamMembers] = useState<TeamMember[]>(getTeamMembers());
@@ -68,7 +72,7 @@ const FeedbackForm = () => {
         recipientName: data.recipientName,
         feedback: data.feedback,
         isAnonymous: data.isAnonymous
-      }, "You (Demo User)");
+      }, currentUser.name);
       
       saveFeedback(newFeedback);
       

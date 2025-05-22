@@ -4,15 +4,17 @@ export interface TeamMember {
   name: string;
   role: string;
   avatarInitials: string;
+  isAdmin: boolean;
 }
 
 // Sample team members data
 const defaultTeamMembers: TeamMember[] = [
-  { id: 1, name: "Alex Johnson", role: "Product Manager", avatarInitials: "AJ" },
-  { id: 2, name: "Samantha Lee", role: "UX Designer", avatarInitials: "SL" },
-  { id: 3, name: "Marcus Chen", role: "Developer", avatarInitials: "MC" },
-  { id: 4, name: "Priya Patel", role: "Marketing Lead", avatarInitials: "PP" },
-  { id: 5, name: "James Wilson", role: "Data Analyst", avatarInitials: "JW" },
+  { id: 1, name: "Alex Johnson", role: "Product Manager", avatarInitials: "AJ", isAdmin: false },
+  { id: 2, name: "Samantha Lee", role: "UX Designer", avatarInitials: "SL", isAdmin: false },
+  { id: 3, name: "Marcus Chen", role: "Developer", avatarInitials: "MC", isAdmin: false },
+  { id: 4, name: "Priya Patel", role: "Marketing Lead", avatarInitials: "PP", isAdmin: false },
+  { id: 5, name: "James Wilson", role: "Data Analyst", avatarInitials: "JW", isAdmin: false },
+  { id: 6, name: "Anish", role: "Admin", avatarInitials: "AN", isAdmin: true },
 ];
 
 // Helper functions to work with localStorage
@@ -35,6 +37,13 @@ export const saveTeamMember = (member: TeamMember): void => {
       members[existingIndex] = member;
     } else {
       member.id = Date.now();
+      // Generate avatar initials from the name
+      member.avatarInitials = member.name
+        .split(" ")
+        .map(part => part[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
       members.push(member);
     }
     
@@ -43,4 +52,3 @@ export const saveTeamMember = (member: TeamMember): void => {
     console.error("Error saving team member:", error);
   }
 };
-
