@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -15,10 +14,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { moderateFeedback } from "@/utils/feedbackModeration";
 import { AlertCircle } from "lucide-react";
 import { createFeedback, saveFeedback } from "@/models/feedback";
+import { TeamMember, getTeamMembers } from "@/models/teamMember";
 
 const feedbackSchema = z.object({
   recipientName: z.string().min(2, "Recipient name must be at least 2 characters"),
@@ -31,6 +38,7 @@ type FeedbackFormValues = z.infer<typeof feedbackSchema>;
 const FeedbackForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [moderationMessage, setModerationMessage] = useState<string | null>(null);
+  const [teamMembers] = useState<TeamMember[]>(getTeamMembers());
 
   const form = useForm<FeedbackFormValues>({
     resolver: zodResolver(feedbackSchema),
@@ -56,7 +64,12 @@ const FeedbackForm = () => {
     // Simulate API call with timeout
     setTimeout(() => {
       // Create and save feedback
-      const newFeedback = createFeedback(data, "You (Demo User)");
+      const newFeedback = createFeedback({
+        recipientName: data.recipientName,
+        feedback: data.feedback,
+        isAnonymous: data.isAnonymous
+      }, "You (Demo User)");
+      
       saveFeedback(newFeedback);
       
       // Reset form and show success message
@@ -78,10 +91,24 @@ const FeedbackForm = () => {
           name="recipientName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Team Member Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter the name of the team member" {...field} />
-              </FormControl>
+              <FormLabel>Team Member</FormLabel>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a team member" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {teamMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.name}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

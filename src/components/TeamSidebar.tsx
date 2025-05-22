@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { User } from "lucide-react";
+import { User, Users } from "lucide-react";
 import { TeamMember, getTeamMembers } from "@/models/teamMember";
 import { 
   Sidebar,
@@ -14,13 +14,21 @@ import {
   SidebarFooter
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface TeamSidebarProps {
   onSelectMember: (member: TeamMember) => void;
+  onSwitchUser: (member: TeamMember) => void;
   selectedMemberId?: number;
+  currentUserId: number;
 }
 
-const TeamSidebar = ({ onSelectMember, selectedMemberId }: TeamSidebarProps) => {
+const TeamSidebar = ({ 
+  onSelectMember, 
+  onSwitchUser,
+  selectedMemberId, 
+  currentUserId 
+}: TeamSidebarProps) => {
   const [members] = useState<TeamMember[]>(getTeamMembers());
 
   return (
@@ -38,13 +46,43 @@ const TeamSidebar = ({ onSelectMember, selectedMemberId }: TeamSidebarProps) => 
                   isActive={selectedMemberId === member.id}
                   onClick={() => onSelectMember(member)}
                   tooltip={member.role}
+                  className="flex justify-between"
                 >
-                  <Avatar className="h-6 w-6 mr-2">
-                    <AvatarFallback className="text-xs">
-                      {member.avatarInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{member.name}</span>
+                  <div className="flex items-center">
+                    <Avatar className="h-6 w-6 mr-2">
+                      <AvatarFallback className="text-xs">
+                        {member.avatarInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span>{member.name}</span>
+                  </div>
+                  {member.id === currentUserId && (
+                    <span className="ml-2 text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded">
+                      You
+                    </span>
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>Switch User</SidebarGroupLabel>
+          <SidebarMenu>
+            {members.map((member) => (
+              <SidebarMenuItem key={`switch-${member.id}`}>
+                <SidebarMenuButton
+                  isActive={currentUserId === member.id}
+                  onClick={() => onSwitchUser(member)}
+                  tooltip="Switch to this user"
+                  className={cn(
+                    "text-xs",
+                    currentUserId === member.id && "font-medium"
+                  )}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  <span>Login as {member.name}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -53,7 +91,7 @@ const TeamSidebar = ({ onSelectMember, selectedMemberId }: TeamSidebarProps) => 
       </SidebarContent>
       <SidebarFooter className="border-t px-4 py-3">
         <div className="flex items-center text-sm text-muted-foreground">
-          <User className="h-4 w-4 mr-2" />
+          <Users className="h-4 w-4 mr-2" />
           <span>Team View Mode</span>
         </div>
       </SidebarFooter>

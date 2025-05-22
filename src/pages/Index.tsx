@@ -7,35 +7,56 @@ import TeamSidebar from "@/components/TeamSidebar";
 import TeamMemberProfile from "@/components/TeamMemberProfile";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell } from "lucide-react";
+import { Bell, User } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { TeamMember, getTeamMembers } from "@/models/teamMember";
+import { getFeedbackList } from "@/models/feedback";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("give-feedback");
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-
+  const [currentUser, setCurrentUser] = useState<TeamMember>(getTeamMembers()[0]);
+  
   const handleSelectMember = (member: TeamMember) => {
     setSelectedMember(member);
     setActiveTab("member-view");
   };
+
+  const handleSwitchCurrentUser = (member: TeamMember) => {
+    setCurrentUser(member);
+    toast({
+      title: "User Switched",
+      description: `You are now logged in as ${member.name}`,
+    });
+  };
+
+  // Filter feedback for the current user
+  const myFeedback = getFeedbackList().filter(
+    (item) => item.recipientName === currentUser.name
+  );
 
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-primary text-primary-foreground py-4 px-6 flex items-center justify-between">
         <h1 className="text-xl font-bold">TeamFeedback</h1>
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative text-primary-foreground"
-            onClick={() => toast({
-              title: "Notifications",
-              description: "You have no new notifications",
-            })}
-          >
-            <Bell className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="text-sm">
+              <span className="opacity-75 mr-1">Logged in as:</span>
+              <span className="font-medium">{currentUser.name}</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative text-primary-foreground"
+              onClick={() => toast({
+                title: "Notifications",
+                description: "You have no new notifications",
+              })}
+            >
+              <Bell className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -43,7 +64,9 @@ const Index = () => {
         <div className="flex min-h-[calc(100vh-4rem)] w-full">
           <TeamSidebar 
             onSelectMember={handleSelectMember}
+            onSwitchUser={handleSwitchCurrentUser}
             selectedMemberId={selectedMember?.id}
+            currentUserId={currentUser.id}
           />
           <SidebarInset>
             <main className="container mx-auto py-8 px-4 md:px-6 flex-grow">
@@ -76,7 +99,7 @@ const Index = () => {
                 <TabsContent value="my-feedback">
                   <div className="bg-card rounded-lg shadow-md p-6">
                     <h2 className="text-2xl font-semibold mb-6">Feedback Received</h2>
-                    <FeedbackList />
+                    <FeedbackList feedbackItems={myFeedback} loading={false} />
                   </div>
                 </TabsContent>
 
