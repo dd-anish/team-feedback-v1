@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { TeamMember } from "@/models/teamMember";
 import { Feedback, getFeedbackList } from "@/models/feedback";
 import FeedbackList from "@/components/FeedbackList";
+import { Badge } from "@/components/ui/badge";
 
 interface TeamMemberProfileProps {
   member: TeamMember;
@@ -23,7 +24,7 @@ const TeamMemberProfile = ({ member, currentUser }: TeamMemberProfileProps) => {
       // Determine which feedback to show based on user permissions
       let memberFeedback;
       
-      if (currentUser.isAdmin) {
+      if (currentUser.isSuperAdmin || currentUser.isAdmin) {
         // Admins can see all feedback for the selected member
         memberFeedback = allFeedback.filter(
           (item) => item.recipientName === member.name
@@ -45,6 +46,8 @@ const TeamMemberProfile = ({ member, currentUser }: TeamMemberProfileProps) => {
     return () => clearTimeout(timer);
   }, [member, currentUser]);
 
+  const canViewFeedback = currentUser.isSuperAdmin || currentUser.isAdmin || currentUser.id === member.id;
+
   return (
     <div className="space-y-6">
       <Card>
@@ -56,26 +59,32 @@ const TeamMemberProfile = ({ member, currentUser }: TeamMemberProfileProps) => {
           </Avatar>
           <div>
             <CardTitle>{member.name}</CardTitle>
-            <CardDescription>{member.role}</CardDescription>
-            {member.isAdmin && (
-              <span className="inline-block mt-1 text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded">
-                Admin
-              </span>
-            )}
+            <CardDescription className="flex flex-col gap-1">
+              <span>{member.role}</span>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {member.team && (
+                  <Badge variant="outline">{member.team}</Badge>
+                )}
+                {member.isSuperAdmin ? (
+                  <Badge className="bg-primary/80">Super Admin</Badge>
+                ) : member.isAdmin ? (
+                  <Badge className="bg-primary/20 text-primary">Admin</Badge>
+                ) : null}
+              </div>
+            </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <h3 className="font-semibold mb-4">
-            {currentUser.isAdmin 
+            {currentUser.isAdmin || currentUser.isSuperAdmin
               ? `Feedback for ${member.name}`
               : currentUser.id === member.id 
                 ? "Feedback Received"
                 : "You don't have permission to view this feedback"}
           </h3>
-          {(currentUser.isAdmin || currentUser.id === member.id) && (
+          {canViewFeedback ? (
             <FeedbackList feedbackItems={feedback} loading={loading} />
-          )}
-          {(!currentUser.isAdmin && currentUser.id !== member.id) && (
+          ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
                 You need to be an admin to view other team members' feedback.

@@ -12,7 +12,12 @@ export interface Feedback {
 export const getFeedbackList = (): Feedback[] => {
   try {
     const storedFeedback = localStorage.getItem("feedbackList");
-    return storedFeedback ? JSON.parse(storedFeedback) : [];
+    const feedbackList = storedFeedback ? JSON.parse(storedFeedback) : [];
+    
+    // Sort feedback in descending order (latest first)
+    return feedbackList.sort((a: Feedback, b: Feedback) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
   } catch (error) {
     console.error("Error retrieving feedback:", error);
     return [];
