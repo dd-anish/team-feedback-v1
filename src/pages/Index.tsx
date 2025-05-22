@@ -11,6 +11,7 @@ import { Bell, User } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { TeamMember, getTeamMembers } from "@/models/teamMember";
 import { getFeedbackList } from "@/models/feedback";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
