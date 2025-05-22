@@ -29,7 +29,14 @@ export const saveFeedback = (feedback: Feedback): void => {
   }
 };
 
-export const createFeedback = (data: Omit<Feedback, "id" | "createdAt" | "senderName">, senderName: string): Feedback => {
+export const createFeedback = (
+  data: {
+    recipientName: string;
+    feedback: string;
+    isAnonymous: boolean;
+  }, 
+  senderName: string
+): Feedback => {
   return {
     id: Date.now(),
     ...data,
