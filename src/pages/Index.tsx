@@ -1,12 +1,64 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import FeedbackForm from "@/components/FeedbackForm";
+import FeedbackList from "@/components/FeedbackList";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Bell } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState("give-feedback");
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="bg-primary text-primary-foreground py-4 px-6 flex items-center justify-between">
+        <h1 className="text-xl font-bold">TeamFeedback</h1>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative text-primary-foreground"
+            onClick={() => toast({
+              title: "Notifications",
+              description: "You have no new notifications",
+            })}
+          >
+            <Bell className="h-5 w-5" />
+          </Button>
+        </div>
+      </header>
+
+      <main className="container mx-auto py-8 px-4 md:px-6 flex-grow">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="give-feedback">
+              Give Feedback
+            </TabsTrigger>
+            <TabsTrigger value="my-feedback">
+              My Feedback
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="give-feedback">
+            <div className="bg-card rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-semibold mb-6">Give Feedback to Team Member</h2>
+              <FeedbackForm />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="my-feedback">
+            <div className="bg-card rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-semibold mb-6">Feedback Received</h2>
+              <FeedbackList />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+
+      <footer className="bg-muted py-4 px-6 text-center text-sm text-muted-foreground">
+        <p>© 2025 TeamFeedback. All rights reserved.</p>
+      </footer>
     </div>
   );
 };
